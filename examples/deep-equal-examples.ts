@@ -1,7 +1,17 @@
-// Launch: node examples/deep-equal-examples.js
+// Launch: npm run build && npm run examples
 
-const assert = require("node:assert/strict");
-const { DeepEqualEngine, Comparator } = require("../src/deep-equal");
+import assert from "node:assert/strict";
+import { DeepEqualEngine, Comparator } from "../src/deep-equal";
+
+interface CyclicNode {
+  name: string;
+  self?: CyclicNode;
+}
+
+interface MutualNode {
+  name: string;
+  other?: MutualNode;
+}
 
 const engine = new DeepEqualEngine();
 
@@ -24,11 +34,11 @@ assert.equal(engine.deepEqual(/test/gi, /test/gi), true);
 assert.equal(engine.deepEqual(/test/gi, /test/g), false);
 assert.equal(
   engine.deepEqual(
-    new Map([
+    new Map<string, unknown>([
       ["a", 1],
       ["b", { ok: true }],
     ]),
-    new Map([
+    new Map<string, unknown>([
       ["b", { ok: true }],
       ["a", 1],
     ])
@@ -41,30 +51,30 @@ assert.equal(
 );
 assert.equal(engine.deepEqual(new Set([1, 2]), new Set([1, 2, 3])), false);
 
-const cyclicA = { name: "node" };
+const cyclicA: CyclicNode = { name: "node" };
 cyclicA.self = cyclicA;
-const cyclicB = { name: "node" };
+const cyclicB: CyclicNode = { name: "node" };
 cyclicB.self = cyclicB;
 assert.equal(engine.deepEqual(cyclicA, cyclicB), true);
 
-const left = { name: "a" };
-const right = { name: "b" };
+const left: MutualNode = { name: "a" };
+const right: MutualNode = { name: "b" };
 left.other = right;
 right.other = left;
-const left2 = { name: "a" };
-const right2 = { name: "b" };
+const left2: MutualNode = { name: "a" };
+const right2: MutualNode = { name: "b" };
 left2.other = right2;
 right2.other = left2;
 assert.equal(engine.deepEqual(left, left2), true);
 assert.equal(engine.deepEqual(cyclicA, cyclicB), true);
 
 class UrlComparator extends Comparator {
-  canHandle(value) {
+  canHandle(value: unknown): boolean {
     return value instanceof URL;
   }
 
-  compare(a, b) {
-    return b instanceof URL && a.href === b.href;
+  compare(a: unknown, b: unknown): boolean {
+    return a instanceof URL && b instanceof URL && a.href === b.href;
   }
 }
 
@@ -77,7 +87,9 @@ assert.equal(
   true
 );
 class CustomBox {
-  constructor(value) {
+  value: unknown;
+
+  constructor(value: unknown) {
     this.value = value;
   }
 }

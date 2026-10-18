@@ -13,11 +13,28 @@
   "license": "ISC",
   "author": "",
   "type": "commonjs",
-  "main": "src/deep-equal.js",
+  "main": "dist/src/deep-equal.js",
+  "types": "dist/src/deep-equal.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "test": "jest"
+    "build": "tsc",
+    "test": "jest",
+    "examples": "node dist/examples/deep-equal-examples.js"
   },
-  "dependencies": {
-    "jest": "^30.5.2"
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^22.10.0",
+    "jest": "^30.5.2",
+    "ts-jest": "^29.4.0",
+    "typescript": "^5.7.0"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/tests/**/*.test.ts"
+    ]
   }
 }

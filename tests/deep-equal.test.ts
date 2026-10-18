@@ -1,7 +1,7 @@
 // Tests for DeepEqualEngine (deep comparison via OOP comparators).
 // Run: npm test
 
-const {
+import {
   DeepEqualEngine,
   Comparator,
   NumberComparator,
@@ -15,7 +15,17 @@ const {
   ArrayComparator,
   UnorderedArrayComparator,
   ObjectComparator,
-} = require("../src/deep-equal");
+} from "../src/deep-equal";
+
+interface CyclicNode {
+  name: string;
+  self?: CyclicNode;
+}
+
+interface MutualNode {
+  name: string;
+  other?: MutualNode;
+}
 
 describe("DeepEqualEngine: primitives", () => {
   const engine = new DeepEqualEngine();
@@ -170,37 +180,37 @@ describe("DeepEqualEngine: circular references", () => {
   const engine = new DeepEqualEngine();
 
   test("self-referencing object equals an analogous one", () => {
-    const cyclicA = { name: "node" };
+    const cyclicA: CyclicNode = { name: "node" };
     cyclicA.self = cyclicA;
-    const cyclicB = { name: "node" };
+    const cyclicB: CyclicNode = { name: "node" };
     cyclicB.self = cyclicB;
     expect(engine.deepEqual(cyclicA, cyclicB)).toBe(true);
   });
 
   test("mutual references between two objects", () => {
-    const left = { name: "a" };
-    const right = { name: "b" };
+    const left: MutualNode = { name: "a" };
+    const right: MutualNode = { name: "b" };
     left.other = right;
     right.other = left;
-    const left2 = { name: "a" };
-    const right2 = { name: "b" };
+    const left2: MutualNode = { name: "a" };
+    const right2: MutualNode = { name: "b" };
     left2.other = right2;
     right2.other = left2;
     expect(engine.deepEqual(left, left2)).toBe(true);
   });
 
   test("cyclic objects with different values are not equal", () => {
-    const a = { name: "a" };
+    const a: CyclicNode = { name: "a" };
     a.self = a;
-    const b = { name: "b" };
+    const b: CyclicNode = { name: "b" };
     b.self = b;
     expect(engine.deepEqual(a, b)).toBe(false);
   });
 
   test("cycle in an array", () => {
-    const a = [1];
+    const a: unknown[] = [1];
     a.push(a);
-    const b = [1];
+    const b: unknown[] = [1];
     b.push(b);
     expect(engine.deepEqual(a, b)).toBe(true);
   });
@@ -242,11 +252,11 @@ describe("DeepEqualEngine: different data types", () => {
   });
 
   test("Map is compared by keys and values", () => {
-    const a = new Map([
+    const a = new Map<string, unknown>([
       ["a", 1],
       ["b", { ok: true }],
     ]);
-    const b = new Map([
+    const b = new Map<string, unknown>([
       ["b", { ok: true }],
       ["a", 1],
     ]);
@@ -318,12 +328,12 @@ describe("DeepEqualEngine: options", () => {
 describe("DeepEqualEngine: extension via inheritance", () => {
   test("adding a custom comparator for URL", () => {
     class UrlComparator extends Comparator {
-      canHandle(value) {
+      canHandle(value: unknown): boolean {
         return value instanceof URL;
       }
 
-      compare(a, b) {
-        return b instanceof URL && a.href === b.href;
+      compare(a: unknown, b: unknown): boolean {
+        return a instanceof URL && b instanceof URL && a.href === b.href;
       }
     }
 
@@ -345,17 +355,17 @@ describe("DeepEqualEngine: extension via inheritance", () => {
 
   test("addComparator rejects an object that does not inherit Comparator", () => {
     const engine = new DeepEqualEngine();
-    expect(() => engine.addComparator({})).toThrow(TypeError);
-    expect(() => engine.addComparator({})).toThrow(/Comparator/);
+    expect(() => engine.addComparator({} as Comparator)).toThrow(TypeError);
+    expect(() => engine.addComparator({} as Comparator)).toThrow(/Comparator/);
   });
 
   test("custom comparator takes priority over built-in ones", () => {
     class AlwaysTrueComparator extends Comparator {
-      canHandle() {
+      canHandle(): boolean {
         return true;
       }
 
-      compare() {
+      compare(): boolean {
         return true;
       }
     }
