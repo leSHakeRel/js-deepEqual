@@ -1,0 +1,23 @@
+{
+  "name": "js-deepequal",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/leSHakeRel/js-deepEqual#readme",
+  "bugs": {
+    "url": "https://github.com/leSHakeRel/js-deepEqual/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/leSHakeRel/js-deepEqual.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "src/deep-equal.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "dependencies": {
+    "jest": "^30.5.2"
+  }
+}
